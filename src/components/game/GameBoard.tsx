@@ -1,5 +1,5 @@
 import { memo, useCallback } from 'react';
-import { GameState, GameMap, CELL_SIZE, PlacedTower } from '@/game/types';
+import { GameState, GameMap, CELL_SIZE, PlacedTower, Explosion } from '@/game/types';
 import { TOWERS, ENEMIES } from '@/game/data';
 
 interface GameBoardProps {
