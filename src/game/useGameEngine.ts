@@ -161,30 +161,32 @@ export function useGameEngine(mapId: string) {
         });
       }
 
-      // Move enemies
+      // Move enemies - create new objects to avoid mutation
       const reachedEnd: string[] = [];
-      for (const enemy of s.enemies) {
+      s.enemies = s.enemies.map(enemy => {
+        const e = { ...enemy };
         // Apply slow
-        let speed = enemy.speed;
-        if (enemy.slowTimer > 0) {
+        let speed = e.speed;
+        if (e.slowTimer > 0) {
           speed *= 0.4;
-          enemy.slowTimer -= dt;
+          e.slowTimer -= dt;
         }
         // Apply DOT
-        if (enemy.dotTimer > 0) {
-          enemy.hp -= enemy.dotDamage * dt;
-          enemy.dotTimer -= dt;
+        if (e.dotTimer > 0) {
+          e.hp -= e.dotDamage * dt;
+          e.dotTimer -= dt;
         }
 
-        enemy.pathIndex += speed * dt;
-        const pos = pathPixels(enemy.pathIndex);
-        enemy.x = pos.x;
-        enemy.y = pos.y;
+        e.pathIndex += speed * dt;
+        const pos = pathPixels(e.pathIndex);
+        e.x = pos.x;
+        e.y = pos.y;
 
-        if (enemy.pathIndex >= map.path.length - 1) {
-          reachedEnd.push(enemy.id);
+        if (e.pathIndex >= map.path.length - 1) {
+          reachedEnd.push(e.id);
         }
-      }
+        return e;
+      });
 
       // Remove enemies that reached end
       if (reachedEnd.length > 0) {
@@ -192,12 +194,12 @@ export function useGameEngine(mapId: string) {
         s.enemies = s.enemies.filter(e => !reachedEnd.includes(e.id));
       }
 
-      // Tower firing
+      // Tower firing - create new tower objects to preserve immutability
       const now = s.spawnTimer; // use spawnTimer as continuous time
-      for (const tower of s.towers) {
+      s.towers = s.towers.map(tower => {
         const stats = getTowerStats(tower);
         const interval = 1 / stats.fireRate;
-        if (now - tower.lastFired < interval) continue;
+        if (now - tower.lastFired < interval) return tower;
 
         // Find closest enemy in range
         const towerX = tower.col * CELL_SIZE + CELL_SIZE / 2;
@@ -218,8 +220,6 @@ export function useGameEngine(mapId: string) {
         }
 
         if (closest) {
-          tower.lastFired = now;
-          tower.target = closest.id;
           s.projectiles.push({
             id: uid(),
             fromX: towerX,
@@ -233,8 +233,10 @@ export function useGameEngine(mapId: string) {
             dotDamage: stats.dotDamage,
             targetId: closest.id,
           });
+          return { ...tower, lastFired: now, target: closest.id };
         }
-      }
+        return tower;
+      });
 
       // Move projectiles
       const hitProjectiles: string[] = [];
@@ -257,22 +259,27 @@ export function useGameEngine(mapId: string) {
           // Apply damage
           if (proj.splashRadius > 0) {
             const splashPx = proj.splashRadius * CELL_SIZE;
-            for (const enemy of s.enemies) {
+            s.enemies = s.enemies.map(enemy => {
               const dx = enemy.x - proj.toX;
               const dy = enemy.y - proj.toY;
               if (Math.sqrt(dx * dx + dy * dy) <= splashPx) {
-                enemy.hp -= proj.damage;
-                if (proj.slowFactor < 1) enemy.slowTimer = 2;
-                if (proj.dotDamage > 0) { enemy.dotDamage = proj.dotDamage; enemy.dotTimer = 3; }
+                const e = { ...enemy, hp: enemy.hp - proj.damage };
+                if (proj.slowFactor < 1) e.slowTimer = 2;
+                if (proj.dotDamage > 0) { e.dotDamage = proj.dotDamage; e.dotTimer = 3; }
+                return e;
               }
-            }
+              return enemy;
+            });
           } else {
-            const target = s.enemies.find(e => e.id === proj.targetId);
-            if (target) {
-              target.hp -= proj.damage;
-              if (proj.slowFactor < 1) target.slowTimer = 2;
-              if (proj.dotDamage > 0) { target.dotDamage = proj.dotDamage; target.dotTimer = 3; }
-            }
+            s.enemies = s.enemies.map(enemy => {
+              if (enemy.id === proj.targetId) {
+                const e = { ...enemy, hp: enemy.hp - proj.damage };
+                if (proj.slowFactor < 1) e.slowTimer = 2;
+                if (proj.dotDamage > 0) { e.dotDamage = proj.dotDamage; e.dotTimer = 3; }
+                return e;
+              }
+              return enemy;
+            });
           }
         }
       }
