@@ -117,8 +117,11 @@ export function useGameEngine(mapId: string) {
       spawnQueue: queue,
       spawnTimer: 0,
     }));
-    // The useEffect watching state.phase will start the game loop
-  }, []);
+
+    runningRef.current = true;
+    lastTimeRef.current = performance.now();
+    rafRef.current = requestAnimationFrame(gameLoop);
+  }, [gameLoop]);
 
   const gameLoop = useCallback((time: number) => {
     const dt = Math.min((time - lastTimeRef.current) / 1000, 0.05);
