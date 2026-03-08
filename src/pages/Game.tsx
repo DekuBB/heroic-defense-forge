@@ -111,7 +111,7 @@ const GamePlay = ({ mapId }: { mapId: string }) => {
       <GameHUD
         state={state}
         mapName={map.name}
-        onStartWave={startWave}
+        onStartWave={handleStartWave}
         onReset={resetGame}
         onBack={() => navigate('/game')}
       />

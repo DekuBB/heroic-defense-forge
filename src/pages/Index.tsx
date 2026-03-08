@@ -126,6 +126,9 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Towers Section */}
+      <TowerShowcase />
+
       {/* Boss Section */}
       <BossShowcase />
 
