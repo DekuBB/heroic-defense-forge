@@ -23,6 +23,7 @@ export function useGameEngine(mapId: string) {
     towers: [],
     enemies: [],
     projectiles: [],
+    explosions: [],
     spawnQueue: [],
     spawnTimer: 0,
     score: 0,
