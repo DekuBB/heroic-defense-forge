@@ -14,12 +14,13 @@ function getTowerStats(tower: PlacedTower) {
   return { damage: up.damage, range: up.range, fireRate: up.fireRate, splashRadius: def.splashRadius, slowFactor: def.slowFactor, dotDamage: def.dotDamage };
 }
 
-export function useGameEngine(mapId: string) {
+export function useGameEngine(mapId: string, difficulty: Difficulty = 'normal') {
   const map = MAPS.find(m => m.id === mapId) || MAPS[0];
+  const settings = DIFFICULTY_SETTINGS[difficulty];
   
   const [state, setState] = useState<GameState>({
-    gold: 200,
-    lives: 20,
+    gold: settings.gold,
+    lives: settings.lives,
     wave: 0,
     phase: 'prep',
     towers: [],
