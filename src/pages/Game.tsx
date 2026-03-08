@@ -4,12 +4,18 @@ import { useGameEngine } from '@/game/useGameEngine';
 import GameBoard from '@/components/game/GameBoard';
 import TowerPanel from '@/components/game/TowerPanel';
 import GameHUD from '@/components/game/GameHUD';
+import Minimap from '@/components/game/Minimap';
+import EnemyTooltip from '@/components/game/EnemyTooltip';
+import Leaderboard from '@/components/game/Leaderboard';
 import { MAPS } from '@/game/data';
+import { Difficulty, DIFFICULTY_SETTINGS, addToLeaderboard } from '@/game/difficulty';
 import { motion } from 'framer-motion';
 import { playHitSound, playSplashSound, playKillSound, playPlaceSound, playWaveStartSound } from '@/game/audio';
 
 const MapSelect = ({ onSelect }: { onSelect: (id: string) => void }) => {
   const navigate = useNavigate();
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+
   return (
     <div className="min-h-screen bg-game-gradient flex flex-col items-center justify-center p-4">
       <motion.div
@@ -42,26 +48,71 @@ const MapSelect = ({ onSelect }: { onSelect: (id: string) => void }) => {
           ))}
         </div>
 
-        <button
-          onClick={() => navigate('/')}
-          className="font-body text-sm text-muted-foreground hover:text-primary transition-colors"
-        >
-          ← Powrót do strony głównej
-        </button>
+        <div className="flex gap-4 justify-center">
+          <button
+            onClick={() => setShowLeaderboard(true)}
+            className="px-6 py-2 bg-secondary text-foreground font-body font-bold text-sm rounded-lg hover:bg-secondary/80 transition-colors border border-border"
+          >
+            🏆 Ranking
+          </button>
+          <button
+            onClick={() => navigate('/')}
+            className="font-body text-sm text-muted-foreground hover:text-primary transition-colors py-2"
+          >
+            ← Powrót do strony głównej
+          </button>
+        </div>
+      </motion.div>
+      {showLeaderboard && <Leaderboard onClose={() => setShowLeaderboard(false)} />}
+    </div>
+  );
+};
+
+const DifficultySelect = ({ onSelect }: { onSelect: (d: Difficulty) => void }) => {
+  return (
+    <div className="min-h-screen bg-game-gradient flex flex-col items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center space-y-8 max-w-lg"
+      >
+        <h1 className="font-display text-3xl font-bold text-foreground">
+          Wybierz <span className="text-primary text-glow-gold">Trudność</span>
+        </h1>
+        <div className="space-y-4">
+          {(Object.entries(DIFFICULTY_SETTINGS) as [Difficulty, typeof DIFFICULTY_SETTINGS['easy']][]).map(([key, val]) => (
+            <motion.button
+              key={key}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => onSelect(key)}
+              className="w-full bg-card border border-border rounded-xl p-5 text-left hover:border-primary/50 transition-colors flex items-center gap-4"
+            >
+              <span className="text-3xl">{val.emoji}</span>
+              <div className="flex-1">
+                <h3 className="font-display text-lg font-bold text-foreground">{val.label}</h3>
+                <p className="font-body text-sm text-muted-foreground">
+                  🪙 {val.gold} złota • ❤️ {val.lives} żyć • ×{val.scoreMultiplier} pkt
+                </p>
+              </div>
+            </motion.button>
+          ))}
+        </div>
       </motion.div>
     </div>
   );
 };
 
-const GamePlay = ({ mapId }: { mapId: string }) => {
+const GamePlay = ({ mapId, difficulty }: { mapId: string; difficulty: Difficulty }) => {
   const navigate = useNavigate();
-  const { state, map, placeTower, upgradeTower, sellTower, startWave, resetGame, speed, paused, setGameSpeed, togglePause } = useGameEngine(mapId);
+  const { state, map, placeTower, upgradeTower, sellTower, startWave, resetGame, speed, paused, setGameSpeed, togglePause } = useGameEngine(mapId, difficulty);
   const [selectedTower, setSelectedTower] = useState<string | null>(null);
   const [selectedPlaced, setSelectedPlaced] = useState<string | null>(null);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const scoreSubmitted = useRef(false);
 
   // Track explosion count for audio
   const prevExplosionCount = useRef(0);
-  const prevEnemyCount = useRef(0);
 
   useEffect(() => {
     const newExplosions = state.explosions.length - prevExplosionCount.current;
@@ -74,6 +125,23 @@ const GamePlay = ({ mapId }: { mapId: string }) => {
     }
     prevExplosionCount.current = state.explosions.length;
   }, [state.explosions.length]);
+
+  // Auto-save score on game end
+  useEffect(() => {
+    if ((state.phase === 'won' || state.phase === 'lost') && !scoreSubmitted.current && state.score > 0) {
+      scoreSubmitted.current = true;
+      const settings = DIFFICULTY_SETTINGS[difficulty];
+      const finalScore = Math.floor(state.score * settings.scoreMultiplier);
+      addToLeaderboard({
+        name: 'Gracz',
+        score: finalScore,
+        map: map.name,
+        difficulty,
+        wave: state.wave,
+        date: new Date().toLocaleDateString('pl-PL'),
+      });
+    }
+  }, [state.phase, state.score, difficulty, map.name, state.wave]);
 
   const handleCellClick = useCallback((col: number, row: number) => {
     if (selectedTower) {
@@ -106,6 +174,11 @@ const GamePlay = ({ mapId }: { mapId: string }) => {
     playWaveStartSound();
   }, [startWave]);
 
+  const handleReset = useCallback(() => {
+    scoreSubmitted.current = false;
+    resetGame();
+  }, [resetGame]);
+
   return (
     <div className="min-h-screen bg-game-gradient p-3 md:p-4 space-y-3">
       <GameHUD
@@ -114,10 +187,11 @@ const GamePlay = ({ mapId }: { mapId: string }) => {
         speed={speed}
         paused={paused}
         onStartWave={handleStartWave}
-        onReset={resetGame}
+        onReset={handleReset}
         onBack={() => navigate('/game')}
         onSetSpeed={setGameSpeed}
         onTogglePause={togglePause}
+        onShowLeaderboard={() => setShowLeaderboard(true)}
       />
       <div className="flex flex-col lg:flex-row gap-3">
         <div className="flex-1 overflow-auto">
@@ -130,15 +204,24 @@ const GamePlay = ({ mapId }: { mapId: string }) => {
             onTowerClick={handleTowerClick}
           />
         </div>
-        <TowerPanel
-          state={state}
-          selectedTower={selectedTower}
-          selectedPlaced={selectedPlaced}
-          onSelectTower={setSelectedTower}
-          onUpgrade={handleUpgrade}
-          onSell={handleSell}
-        />
+        <div className="w-full lg:w-64 space-y-3">
+          <TowerPanel
+            state={state}
+            selectedTower={selectedTower}
+            selectedPlaced={selectedPlaced}
+            onSelectTower={setSelectedTower}
+            onUpgrade={handleUpgrade}
+            onSell={handleSell}
+          />
+          {state.phase === 'combat' && (
+            <>
+              <Minimap map={map} state={state} />
+              <EnemyTooltip enemies={state.enemies} />
+            </>
+          )}
+        </div>
       </div>
+      {showLeaderboard && <Leaderboard onClose={() => setShowLeaderboard(false)} />}
     </div>
   );
 };
@@ -146,12 +229,17 @@ const GamePlay = ({ mapId }: { mapId: string }) => {
 const Game = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const mapId = searchParams.get('map');
+  const diff = searchParams.get('diff') as Difficulty | null;
 
   if (!mapId) {
     return <MapSelect onSelect={(id) => setSearchParams({ map: id })} />;
   }
 
-  return <GamePlay mapId={mapId} />;
+  if (!diff) {
+    return <DifficultySelect onSelect={(d) => setSearchParams({ map: mapId, diff: d })} />;
+  }
+
+  return <GamePlay mapId={mapId} difficulty={diff} />;
 };
 
 export default Game;
