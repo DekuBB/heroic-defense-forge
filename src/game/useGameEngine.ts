@@ -239,9 +239,21 @@ export function useGameEngine(mapId: string) {
       // Move projectiles
       const hitProjectiles: string[] = [];
       for (const proj of s.projectiles) {
-        proj.progress += dt * 5; // speed of projectile
+        proj.progress += dt * 5;
         if (proj.progress >= 1) {
           hitProjectiles.push(proj.id);
+          // Create explosion effect
+          const explType: Explosion['type'] = proj.splashRadius > 0
+            ? (proj.slowFactor < 1 ? 'ice' : proj.dotDamage > 0 ? 'fire' : 'splash')
+            : 'hit';
+          s.explosions.push({
+            id: uid(),
+            x: proj.toX,
+            y: proj.toY,
+            radius: proj.splashRadius > 0 ? proj.splashRadius * CELL_SIZE : 16,
+            timer: 0.35,
+            type: explType,
+          });
           // Apply damage
           if (proj.splashRadius > 0) {
             const splashPx = proj.splashRadius * CELL_SIZE;
@@ -266,16 +278,29 @@ export function useGameEngine(mapId: string) {
       }
       s.projectiles = s.projectiles.filter(p => !hitProjectiles.includes(p.id));
 
-      // Remove dead enemies
+      // Remove dead enemies (create kill explosions)
       const killed = s.enemies.filter(e => e.hp <= 0);
       for (const dead of killed) {
         const def = ENEMIES.find(e => e.id === dead.defId);
         if (def) {
           s.gold += def.reward;
           s.score += def.reward;
+          s.explosions.push({
+            id: uid(),
+            x: dead.x,
+            y: dead.y,
+            radius: def.isBoss ? 40 : 24,
+            timer: 0.5,
+            type: 'kill',
+          });
         }
       }
       s.enemies = s.enemies.filter(e => e.hp > 0);
+
+      // Decay explosions
+      s.explosions = s.explosions
+        .map(e => ({ ...e, timer: e.timer - dt }))
+        .filter(e => e.timer > 0);
 
       // Check wave complete
       if (s.phase === 'combat' && s.spawnQueue.length === 0 && s.enemies.length === 0) {
