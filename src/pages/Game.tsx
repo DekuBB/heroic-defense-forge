@@ -234,8 +234,15 @@ const GamePlay = ({ mapId, difficulty }: { mapId: string; difficulty: Difficulty
         </div>
       </div>
       {showLeaderboard && <Leaderboard onClose={() => setShowLeaderboard(false)} />}
+      {showNameInput && (
+        <NameInput
+          score={finalScore}
+          onSubmit={submitScore}
+          onSkip={() => { submitScore('Anonim'); }}
+        />
+      )}
+      <Tutorial />
     </div>
-  );
 };
 
 const Game = () => {
