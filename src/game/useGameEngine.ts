@@ -1,6 +1,8 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { GameState, PlacedTower, ActiveEnemy, Projectile, Explosion, CELL_SIZE } from './types';
 import { TOWERS, ENEMIES, WAVES, MAPS } from './data';
+import { Difficulty, DIFFICULTY_SETTINGS } from './difficulty';
+import { TOWERS, ENEMIES, WAVES, MAPS } from './data';
 
 let nextId = 0;
 const uid = () => `e${++nextId}`;
