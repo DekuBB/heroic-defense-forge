@@ -161,6 +161,43 @@ const GameBoard = ({ map, state, selectedTower, selectedPlaced, onCellClick, onT
             />
           );
         })}
+
+        {/* Explosions */}
+        {state.explosions.map(expl => {
+          const progress = 1 - expl.timer / 0.35;
+          const scale = 0.5 + progress * 1.5;
+          const opacity = 1 - progress;
+          const colors: Record<Explosion['type'], string> = {
+            hit: 'hsl(45 100% 55%)',
+            splash: 'hsl(15 90% 55%)',
+            ice: 'hsl(200 90% 65%)',
+            fire: 'hsl(15 90% 45%)',
+            kill: 'hsl(45 100% 60%)',
+          };
+          const glowColors: Record<Explosion['type'], string> = {
+            hit: 'hsl(45 100% 55% / 0.6)',
+            splash: 'hsl(15 90% 55% / 0.6)',
+            ice: 'hsl(200 90% 65% / 0.6)',
+            fire: 'hsl(15 90% 45% / 0.6)',
+            kill: 'hsl(45 100% 60% / 0.8)',
+          };
+          return (
+            <div
+              key={expl.id}
+              className="absolute z-50 pointer-events-none rounded-full"
+              style={{
+                left: expl.x - expl.radius,
+                top: expl.y - expl.radius,
+                width: expl.radius * 2,
+                height: expl.radius * 2,
+                transform: `scale(${scale})`,
+                opacity,
+                background: `radial-gradient(circle, ${colors[expl.type]} 0%, transparent 70%)`,
+                boxShadow: `0 0 ${expl.radius}px ${glowColors[expl.type]}`,
+              }}
+            />
+          );
+        })}
       </div>
     </div>
   );
