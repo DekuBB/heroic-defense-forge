@@ -59,10 +59,29 @@ const GamePlay = ({ mapId }: { mapId: string }) => {
   const [selectedTower, setSelectedTower] = useState<string | null>(null);
   const [selectedPlaced, setSelectedPlaced] = useState<string | null>(null);
 
+  // Track explosion count for audio
+  const prevExplosionCount = useRef(0);
+  const prevEnemyCount = useRef(0);
+
+  useEffect(() => {
+    const newExplosions = state.explosions.length - prevExplosionCount.current;
+    if (newExplosions > 0) {
+      const hasKill = state.explosions.some(e => e.type === 'kill' && e.timer > 0.45);
+      const hasSplash = state.explosions.some(e => (e.type === 'splash' || e.type === 'fire' || e.type === 'ice') && e.timer > 0.3);
+      if (hasKill) playKillSound();
+      else if (hasSplash) playSplashSound();
+      else playHitSound();
+    }
+    prevExplosionCount.current = state.explosions.length;
+  }, [state.explosions.length]);
+
   const handleCellClick = useCallback((col: number, row: number) => {
     if (selectedTower) {
       const success = placeTower(selectedTower, col, row);
-      if (success) setSelectedTower(null);
+      if (success) {
+        setSelectedTower(null);
+        playPlaceSound();
+      }
     }
     setSelectedPlaced(null);
   }, [selectedTower, placeTower]);
@@ -74,12 +93,18 @@ const GamePlay = ({ mapId }: { mapId: string }) => {
 
   const handleUpgrade = useCallback((towerId: string) => {
     upgradeTower(towerId);
+    playPlaceSound();
   }, [upgradeTower]);
 
   const handleSell = useCallback((towerId: string) => {
     sellTower(towerId);
     setSelectedPlaced(null);
   }, [sellTower]);
+
+  const handleStartWave = useCallback(() => {
+    startWave();
+    playWaveStartSound();
+  }, [startWave]);
 
   return (
     <div className="min-h-screen bg-game-gradient p-3 md:p-4 space-y-3">
