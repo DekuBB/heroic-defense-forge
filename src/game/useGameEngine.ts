@@ -372,8 +372,8 @@ export function useGameEngine(mapId: string, difficulty: Difficulty = 'normal') 
     runningRef.current = false;
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     setState({
-      gold: 200,
-      lives: 20,
+      gold: settings.gold,
+      lives: settings.lives,
       wave: 0,
       phase: 'prep',
       towers: [],
@@ -384,7 +384,7 @@ export function useGameEngine(mapId: string, difficulty: Difficulty = 'normal') 
       spawnTimer: 0,
       score: 0,
     });
-  }, []);
+  }, [settings]);
 
   return {
     state,
