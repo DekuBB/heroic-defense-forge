@@ -13,9 +13,9 @@ interface GameBoardProps {
 
 const TOWER_SELECTED_CLASS = 'ring-2 ring-primary/50 bg-primary/10 animate-pulse';
 
-const CellComponent = memo(({ type, col, row, theme, hasTower, isSelected, onClick }: {
+const CellComponent = memo(({ type, col, row, theme, hasTower, isSelected, isBuildHighlight, onClick }: {
   type: string; col: number; row: number; theme: string; hasTower: boolean; isSelected: boolean;
-  onClick: () => void;
+  isBuildHighlight: boolean; onClick: () => void;
 }) => {
   const isVolcanic = theme === 'volcanic';
   let bg = '';
@@ -38,7 +38,7 @@ const CellComponent = memo(({ type, col, row, theme, hasTower, isSelected, onCli
       onClick={onClick}
       className={`${bg} border border-border/20 cursor-pointer transition-colors relative ${
         isSelected ? 'ring-2 ring-primary' : ''
-      } ${type === 'start' ? 'border-l-2 border-l-nature' : ''} ${type === 'end' ? 'border-r-2 border-r-fire' : ''}`}
+      } ${isBuildHighlight && !hasTower ? TOWER_SELECTED_CLASS : ''} ${type === 'start' ? 'border-l-2 border-l-nature' : ''} ${type === 'end' ? 'border-r-2 border-r-fire' : ''}`}
       style={{ width: CELL_SIZE, height: CELL_SIZE }}
     />
   );
