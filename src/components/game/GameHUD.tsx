@@ -11,9 +11,10 @@ interface GameHUDProps {
   onBack: () => void;
   onSetSpeed: (speed: number) => void;
   onTogglePause: () => void;
+  onShowLeaderboard: () => void;
 }
 
-const GameHUD = ({ state, mapName, speed, paused, onStartWave, onReset, onBack, onSetSpeed, onTogglePause }: GameHUDProps) => {
+const GameHUD = ({ state, mapName, speed, paused, onStartWave, onReset, onBack, onSetSpeed, onTogglePause, onShowLeaderboard }: GameHUDProps) => {
   return (
     <div className="flex flex-wrap items-center gap-3 bg-card border border-border rounded-xl p-3">
       <button
@@ -34,6 +35,13 @@ const GameHUD = ({ state, mapName, speed, paused, onStartWave, onReset, onBack, 
         <span className="text-muted-foreground">
           Wynik: <span className="text-legendary font-bold">{state.score}</span>
         </span>
+        <button
+          onClick={onShowLeaderboard}
+          className="text-primary hover:text-primary/80 transition-colors"
+          title="Ranking"
+        >
+          🏆
+        </button>
       </div>
 
       {/* Speed Controls */}

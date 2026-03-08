@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import mapImg from "@/assets/map-volcanic.png";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
       {/* Background image */}
@@ -40,10 +42,16 @@ const HeroSection = () => {
           transition={{ duration: 0.8, delay: 0.3 }}
           className="flex flex-col sm:flex-row gap-4 justify-center"
         >
-          <button className="px-8 py-3.5 bg-primary text-primary-foreground font-body font-bold text-base rounded-lg hover:opacity-90 transition-opacity border-glow-legendary">
+          <button
+            onClick={() => navigate('/game')}
+            className="px-8 py-3.5 bg-primary text-primary-foreground font-body font-bold text-base rounded-lg hover:opacity-90 transition-opacity border-glow-legendary"
+          >
             Rozpocznij Grę
           </button>
-          <button className="px-8 py-3.5 bg-secondary text-foreground font-body font-bold text-base rounded-lg hover:bg-secondary/80 transition-colors border border-border">
+          <button
+            onClick={() => document.getElementById('marketplace')?.scrollIntoView({ behavior: 'smooth' })}
+            className="px-8 py-3.5 bg-secondary text-foreground font-body font-bold text-base rounded-lg hover:bg-secondary/80 transition-colors border border-border"
+          >
             Odkryj Marketplace
           </button>
         </motion.div>
