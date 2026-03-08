@@ -15,7 +15,7 @@ const TowerPanel = ({ state, selectedTower, selectedPlaced, onSelectTower, onUpg
   const placedDef = placedTower ? TOWERS.find(t => t.id === placedTower.defId) : null;
 
   return (
-    <div className="w-full lg:w-64 space-y-4">
+    <div className="space-y-4">
       {/* Tower Selection */}
       <div className="bg-card border border-border rounded-xl p-4 space-y-3">
         <h3 className="font-display text-sm font-bold text-foreground">Wieże</h3>
