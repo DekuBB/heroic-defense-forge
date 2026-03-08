@@ -111,9 +111,13 @@ const GamePlay = ({ mapId }: { mapId: string }) => {
       <GameHUD
         state={state}
         mapName={map.name}
+        speed={speed}
+        paused={paused}
         onStartWave={handleStartWave}
         onReset={resetGame}
         onBack={() => navigate('/game')}
+        onSetSpeed={setGameSpeed}
+        onTogglePause={togglePause}
       />
       <div className="flex flex-col lg:flex-row gap-3">
         <div className="flex-1 overflow-auto">
