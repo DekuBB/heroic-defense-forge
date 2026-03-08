@@ -161,30 +161,32 @@ export function useGameEngine(mapId: string) {
         });
       }
 
-      // Move enemies
+      // Move enemies - create new objects to avoid mutation
       const reachedEnd: string[] = [];
-      for (const enemy of s.enemies) {
+      s.enemies = s.enemies.map(enemy => {
+        const e = { ...enemy };
         // Apply slow
-        let speed = enemy.speed;
-        if (enemy.slowTimer > 0) {
+        let speed = e.speed;
+        if (e.slowTimer > 0) {
           speed *= 0.4;
-          enemy.slowTimer -= dt;
+          e.slowTimer -= dt;
         }
         // Apply DOT
-        if (enemy.dotTimer > 0) {
-          enemy.hp -= enemy.dotDamage * dt;
-          enemy.dotTimer -= dt;
+        if (e.dotTimer > 0) {
+          e.hp -= e.dotDamage * dt;
+          e.dotTimer -= dt;
         }
 
-        enemy.pathIndex += speed * dt;
-        const pos = pathPixels(enemy.pathIndex);
-        enemy.x = pos.x;
-        enemy.y = pos.y;
+        e.pathIndex += speed * dt;
+        const pos = pathPixels(e.pathIndex);
+        e.x = pos.x;
+        e.y = pos.y;
 
-        if (enemy.pathIndex >= map.path.length - 1) {
-          reachedEnd.push(enemy.id);
+        if (e.pathIndex >= map.path.length - 1) {
+          reachedEnd.push(e.id);
         }
-      }
+        return e;
+      });
 
       // Remove enemies that reached end
       if (reachedEnd.length > 0) {
