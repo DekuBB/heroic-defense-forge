@@ -55,7 +55,7 @@ const MapSelect = ({ onSelect }: { onSelect: (id: string) => void }) => {
 
 const GamePlay = ({ mapId }: { mapId: string }) => {
   const navigate = useNavigate();
-  const { state, map, placeTower, upgradeTower, sellTower, startWave, resetGame } = useGameEngine(mapId);
+  const { state, map, placeTower, upgradeTower, sellTower, startWave, resetGame, speed, paused, setGameSpeed, togglePause } = useGameEngine(mapId);
   const [selectedTower, setSelectedTower] = useState<string | null>(null);
   const [selectedPlaced, setSelectedPlaced] = useState<string | null>(null);
 
