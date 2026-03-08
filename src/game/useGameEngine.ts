@@ -135,6 +135,7 @@ export function useGameEngine(mapId: string) {
       s.projectiles = [...s.projectiles];
       s.towers = [...s.towers];
       s.spawnQueue = [...s.spawnQueue];
+      s.explosions = [...s.explosions];
 
       // Spawn enemies
       s.spawnTimer += dt;
