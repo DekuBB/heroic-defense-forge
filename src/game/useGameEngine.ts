@@ -292,29 +292,21 @@ export function useGameEngine(mapId: string) {
       return s;
     });
 
-    const currentState = stateRef.current;
-    if (currentState.phase === 'combat') {
-      rafRef.current = requestAnimationFrame(gameLoop);
-    } else {
-      runningRef.current = false;
+    if (runningRef.current) {
+      rafRef.current = requestAnimationFrame((t) => gameLoopRef.current(t));
     }
   }, [map.path, pathPixels]);
 
-  // Start/stop loop when phase changes
+  // Keep gameLoopRef in sync
+  gameLoopRef.current = gameLoop;
+
+  // Cleanup on unmount
   useEffect(() => {
-    if (state.phase === 'combat') {
-      runningRef.current = true;
-      lastTimeRef.current = performance.now();
-      rafRef.current = requestAnimationFrame(gameLoop);
-    }
     return () => {
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-        rafRef.current = 0;
-      }
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
       runningRef.current = false;
     };
-  }, [state.phase, gameLoop]);
+  }, []);
 
   const resetGame = useCallback(() => {
     nextId = 0;
