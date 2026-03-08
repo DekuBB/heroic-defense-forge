@@ -91,6 +91,15 @@ export interface Projectile {
   targetId: string;
 }
 
+export interface Explosion {
+  id: string;
+  x: number;
+  y: number;
+  radius: number; // visual radius
+  timer: number; // seconds remaining
+  type: 'hit' | 'splash' | 'ice' | 'fire' | 'kill';
+}
+
 export interface GameState {
   gold: number;
   lives: number;
@@ -99,6 +108,7 @@ export interface GameState {
   towers: PlacedTower[];
   enemies: ActiveEnemy[];
   projectiles: Projectile[];
+  explosions: Explosion[];
   spawnQueue: { defId: string; delay: number }[];
   spawnTimer: number;
   score: number;

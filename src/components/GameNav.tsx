@@ -5,6 +5,7 @@ import { Shield, Menu, X } from "lucide-react";
 
 const navItems = [
   { label: "Bohaterowie", href: "#heroes" },
+  { label: "Wieże", href: "#towers" },
   { label: "Mapy", href: "#maps" },
   { label: "Wrogowie", href: "#enemies" },
   { label: "Marketplace", href: "#marketplace" },

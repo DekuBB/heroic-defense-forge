@@ -4,6 +4,7 @@ import HeroSection from "@/components/HeroSection";
 import HeroCard from "@/components/HeroCard";
 import MapCard from "@/components/MapCard";
 import BossShowcase from "@/components/BossShowcase";
+import TowerShowcase from "@/components/TowerShowcase";
 
 import paladinImg from "@/assets/hero-paladin.png";
 import fireMageImg from "@/assets/hero-fire-mage.png";
@@ -124,6 +125,9 @@ const Index = () => {
           ))}
         </div>
       </section>
+
+      {/* Towers Section */}
+      <TowerShowcase />
 
       {/* Boss Section */}
       <BossShowcase />
