@@ -185,8 +185,11 @@ const GamePlay = ({ mapId, difficulty }: { mapId: string; difficulty: Difficulty
 
   const handleReset = useCallback(() => {
     scoreSubmitted.current = false;
+    setShowNameInput(false);
     resetGame();
   }, [resetGame]);
+
+  const finalScore = Math.floor(state.score * DIFFICULTY_SETTINGS[difficulty].scoreMultiplier);
 
   return (
     <div className="min-h-screen bg-game-gradient p-3 md:p-4 space-y-3">
