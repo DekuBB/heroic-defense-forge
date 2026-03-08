@@ -259,22 +259,27 @@ export function useGameEngine(mapId: string) {
           // Apply damage
           if (proj.splashRadius > 0) {
             const splashPx = proj.splashRadius * CELL_SIZE;
-            for (const enemy of s.enemies) {
+            s.enemies = s.enemies.map(enemy => {
               const dx = enemy.x - proj.toX;
               const dy = enemy.y - proj.toY;
               if (Math.sqrt(dx * dx + dy * dy) <= splashPx) {
-                enemy.hp -= proj.damage;
-                if (proj.slowFactor < 1) enemy.slowTimer = 2;
-                if (proj.dotDamage > 0) { enemy.dotDamage = proj.dotDamage; enemy.dotTimer = 3; }
+                const e = { ...enemy, hp: enemy.hp - proj.damage };
+                if (proj.slowFactor < 1) e.slowTimer = 2;
+                if (proj.dotDamage > 0) { e.dotDamage = proj.dotDamage; e.dotTimer = 3; }
+                return e;
               }
-            }
+              return enemy;
+            });
           } else {
-            const target = s.enemies.find(e => e.id === proj.targetId);
-            if (target) {
-              target.hp -= proj.damage;
-              if (proj.slowFactor < 1) target.slowTimer = 2;
-              if (proj.dotDamage > 0) { target.dotDamage = proj.dotDamage; target.dotTimer = 3; }
-            }
+            s.enemies = s.enemies.map(enemy => {
+              if (enemy.id === proj.targetId) {
+                const e = { ...enemy, hp: enemy.hp - proj.damage };
+                if (proj.slowFactor < 1) e.slowTimer = 2;
+                if (proj.dotDamage > 0) { e.dotDamage = proj.dotDamage; e.dotTimer = 3; }
+                return e;
+              }
+              return enemy;
+            });
           }
         }
       }
