@@ -40,7 +40,7 @@ const GameNav = () => {
 
         {/* CTA */}
         <div className="hidden md:block">
-          <button className="px-5 py-2 bg-primary text-primary-foreground font-body font-bold text-sm rounded-lg hover:opacity-90 transition-opacity">
+          <button onClick={() => navigate('/game')} className="px-5 py-2 bg-primary text-primary-foreground font-body font-bold text-sm rounded-lg hover:opacity-90 transition-opacity">
             Graj Teraz
           </button>
         </div>
