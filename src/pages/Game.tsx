@@ -243,6 +243,7 @@ const GamePlay = ({ mapId, difficulty }: { mapId: string; difficulty: Difficulty
       )}
       <Tutorial />
     </div>
+  );
 };
 
 const Game = () => {
