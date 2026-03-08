@@ -33,6 +33,7 @@ export function useGameEngine(mapId: string) {
   const rafRef = useRef<number>(0);
   const lastTimeRef = useRef<number>(0);
   const runningRef = useRef(false);
+  const gameLoopRef = useRef<(time: number) => void>(() => {});
 
   const pathPixels = useCallback((pathIndex: number) => {
     const path = map.path;
