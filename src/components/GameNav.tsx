@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Shield, Menu, X } from "lucide-react";
 
@@ -11,6 +12,7 @@ const navItems = [
 
 const GameNav = () => {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
@@ -38,7 +40,7 @@ const GameNav = () => {
 
         {/* CTA */}
         <div className="hidden md:block">
-          <button className="px-5 py-2 bg-primary text-primary-foreground font-body font-bold text-sm rounded-lg hover:opacity-90 transition-opacity">
+          <button onClick={() => navigate('/game')} className="px-5 py-2 bg-primary text-primary-foreground font-body font-bold text-sm rounded-lg hover:opacity-90 transition-opacity">
             Graj Teraz
           </button>
         </div>
@@ -66,7 +68,7 @@ const GameNav = () => {
               {item.label}
             </a>
           ))}
-          <button className="w-full px-5 py-2 bg-primary text-primary-foreground font-body font-bold text-sm rounded-lg">
+          <button onClick={() => { setOpen(false); navigate('/game'); }} className="w-full px-5 py-2 bg-primary text-primary-foreground font-body font-bold text-sm rounded-lg">
             Graj Teraz
           </button>
         </motion.div>
