@@ -17,19 +17,21 @@ const CellComponent = memo(({ type, col, row, theme, hasTower, isSelected, isBui
   type: string; col: number; row: number; theme: string; hasTower: boolean; isSelected: boolean;
   isBuildHighlight: boolean; onClick: () => void;
 }) => {
-  const isVolcanic = theme === 'volcanic';
   let bg = '';
+  const isVolcanic = theme === 'volcanic';
+  const isForest = theme === 'forest';
+  const isDesert = theme === 'desert';
   switch (type) {
     case 'path':
     case 'start':
     case 'end':
-      bg = isVolcanic ? 'bg-orange-900/60' : 'bg-slate-400/40';
+      bg = isVolcanic ? 'bg-orange-900/60' : isForest ? 'bg-amber-900/50' : isDesert ? 'bg-yellow-800/50' : 'bg-slate-400/40';
       break;
     case 'buildable':
-      bg = isVolcanic ? 'bg-stone-800/50 hover:bg-stone-700/60' : 'bg-sky-950/40 hover:bg-sky-900/50';
+      bg = isVolcanic ? 'bg-stone-800/50 hover:bg-stone-700/60' : isForest ? 'bg-emerald-950/50 hover:bg-emerald-900/60' : isDesert ? 'bg-amber-950/40 hover:bg-amber-900/50' : 'bg-sky-950/40 hover:bg-sky-900/50';
       break;
     case 'blocked':
-      bg = isVolcanic ? 'bg-stone-900/80' : 'bg-slate-800/60';
+      bg = isVolcanic ? 'bg-stone-900/80' : isForest ? 'bg-green-950/80' : isDesert ? 'bg-yellow-950/60' : 'bg-slate-800/60';
       break;
   }
 

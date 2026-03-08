@@ -33,7 +33,7 @@ const MapSelect = ({ onSelect }: { onSelect: (id: string) => void }) => {
               onClick={() => onSelect(map.id)}
               className="bg-card border border-border rounded-xl p-6 text-left hover:border-primary/50 transition-colors"
             >
-              <div className="text-4xl mb-3">{map.theme === 'volcanic' ? '🌋' : '❄️'}</div>
+              <div className="text-4xl mb-3">{map.theme === 'volcanic' ? '🌋' : map.theme === 'forest' ? '🌲' : map.theme === 'desert' ? '🏜️' : '❄️'}</div>
               <h3 className="font-display text-lg font-bold text-foreground">{map.name}</h3>
               <p className="font-body text-sm text-muted-foreground mt-1">
                 {map.cols}x{map.rows} • 12 fal • Boss na końcu
