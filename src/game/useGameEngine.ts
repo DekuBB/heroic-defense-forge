@@ -132,8 +132,23 @@ export function useGameEngine(mapId: string) {
     rafRef.current = requestAnimationFrame((t) => gameLoopRef.current(t));
   }, []);
 
+  const togglePause = useCallback(() => {
+    setPaused(p => !p);
+  }, []);
+
+  const setGameSpeed = useCallback((s: number) => {
+    setSpeed(s);
+  }, []);
+
   const gameLoop = useCallback((time: number) => {
-    const dt = Math.min((time - lastTimeRef.current) / 1000, 0.05);
+    if (pausedRef.current) {
+      lastTimeRef.current = time;
+      if (runningRef.current) {
+        rafRef.current = requestAnimationFrame((t) => gameLoopRef.current(t));
+      }
+      return;
+    }
+    const dt = Math.min((time - lastTimeRef.current) / 1000, 0.05) * speedRef.current;
     lastTimeRef.current = time;
 
     setState(prev => {
