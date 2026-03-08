@@ -33,6 +33,7 @@ export function useGameEngine(mapId: string) {
   const rafRef = useRef<number>(0);
   const lastTimeRef = useRef<number>(0);
   const runningRef = useRef(false);
+  const gameLoopRef = useRef<(time: number) => void>(() => {});
 
   const pathPixels = useCallback((pathIndex: number) => {
     const path = map.path;
@@ -118,11 +119,9 @@ export function useGameEngine(mapId: string) {
       spawnTimer: 0,
     }));
 
-    if (!runningRef.current) {
-      runningRef.current = true;
-      lastTimeRef.current = performance.now();
-      rafRef.current = requestAnimationFrame(gameLoop);
-    }
+    runningRef.current = true;
+    lastTimeRef.current = performance.now();
+    rafRef.current = requestAnimationFrame((t) => gameLoopRef.current(t));
   }, []);
 
   const gameLoop = useCallback((time: number) => {
@@ -293,25 +292,21 @@ export function useGameEngine(mapId: string) {
       return s;
     });
 
-    const currentState = stateRef.current;
-    if (currentState.phase === 'combat') {
-      rafRef.current = requestAnimationFrame(gameLoop);
-    } else {
-      runningRef.current = false;
+    if (runningRef.current) {
+      rafRef.current = requestAnimationFrame((t) => gameLoopRef.current(t));
     }
   }, [map.path, pathPixels]);
 
-  // Resume loop when phase becomes combat
+  // Keep gameLoopRef in sync
+  gameLoopRef.current = gameLoop;
+
+  // Cleanup on unmount
   useEffect(() => {
-    if (state.phase === 'combat' && !runningRef.current) {
-      runningRef.current = true;
-      lastTimeRef.current = performance.now();
-      rafRef.current = requestAnimationFrame(gameLoop);
-    }
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      runningRef.current = false;
     };
-  }, [state.phase, gameLoop]);
+  }, []);
 
   const resetGame = useCallback(() => {
     nextId = 0;
