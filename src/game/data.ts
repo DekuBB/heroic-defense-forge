@@ -197,8 +197,38 @@ const tundraRaw = [
   'XBBBBBBBBBBBBBBBX',
 ];
 
+const forestRaw = [
+  'XBBBBBBBBBBBBBBBX',
+  'XBBBSPPPPPPBBBBEX',
+  'XBBBBBBBBBPBBBBPX',
+  'XBBBBBBBBBPBBBBPX',
+  'XBBPPPPPPPPPBBBPX',
+  'XBBPBBBBBBBBBBPPX',
+  'XBBPBBBBBBBBBBBBX',
+  'XBBPPPPPPPPPPBBBX',
+  'XBBBBBBBBBBBPBBBX',
+  'XBBBBBBBBBBBPBBBX',
+  'XBBBBBBBBBBBBBBBX',
+];
+
+const desertRaw = [
+  'XBBBBBBBBBBBBBBBX',
+  'SPPPPPBBBBBBBBBBX',
+  'XBBBBPBBBBBBBBBBX',
+  'XBBBBPPPPPBBBBBBX',
+  'XBBBBBBBBPBBBBBBX',
+  'XBBBBBBBBPPPPPBBX',
+  'XBBBBBBBBBBBBPBBX',
+  'XBBBBBBPPPPPPPBBX',
+  'XBBBBBBPBBBBBBBBX',
+  'XBBBBBBPPPPPPPPEX',
+  'XBBBBBBBBBBBBBBBX',
+];
+
 const volcanic = parseMap(volcanicRaw);
 const tundra = parseMap(tundraRaw);
+const forest = parseMap(forestRaw);
+const desert = parseMap(desertRaw);
 
 export const MAPS: GameMap[] = [
   {
@@ -218,5 +248,23 @@ export const MAPS: GameMap[] = [
     grid: tundra.grid,
     path: tundra.path,
     theme: 'tundra',
+  },
+  {
+    id: 'forest',
+    name: 'Mroczny Las',
+    cols: 18,
+    rows: 11,
+    grid: forest.grid,
+    path: forest.path,
+    theme: 'forest',
+  },
+  {
+    id: 'desert',
+    name: 'Pustynne Wydmy',
+    cols: 18,
+    rows: 11,
+    grid: desert.grid,
+    path: desert.path,
+    theme: 'desert',
   },
 ];

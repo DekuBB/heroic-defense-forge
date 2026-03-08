@@ -392,5 +392,9 @@ export function useGameEngine(mapId: string) {
     startWave,
     resetGame,
     pathPixels,
+    speed,
+    paused,
+    setGameSpeed,
+    togglePause,
   };
 }
