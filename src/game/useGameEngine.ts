@@ -29,12 +29,19 @@ export function useGameEngine(mapId: string) {
     score: 0,
   });
 
+  const [speed, setSpeed] = useState<number>(1);
+  const [paused, setPaused] = useState(false);
+
   const stateRef = useRef(state);
   stateRef.current = state;
   const rafRef = useRef<number>(0);
   const lastTimeRef = useRef<number>(0);
   const runningRef = useRef(false);
   const gameLoopRef = useRef<(time: number) => void>(() => {});
+  const speedRef = useRef(speed);
+  speedRef.current = speed;
+  const pausedRef = useRef(paused);
+  pausedRef.current = paused;
 
   const pathPixels = useCallback((pathIndex: number) => {
     const path = map.path;
