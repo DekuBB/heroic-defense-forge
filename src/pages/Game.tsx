@@ -111,6 +111,7 @@ const GamePlay = ({ mapId, difficulty }: { mapId: string; difficulty: Difficulty
   const [selectedTower, setSelectedTower] = useState<string | null>(null);
   const [selectedPlaced, setSelectedPlaced] = useState<string | null>(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showNameInput, setShowNameInput] = useState(false);
   const scoreSubmitted = useRef(false);
 
   // Track explosion count for audio
@@ -128,22 +129,28 @@ const GamePlay = ({ mapId, difficulty }: { mapId: string; difficulty: Difficulty
     prevExplosionCount.current = state.explosions.length;
   }, [state.explosions.length]);
 
-  // Auto-save score on game end
+  // Show name input on game end
   useEffect(() => {
     if ((state.phase === 'won' || state.phase === 'lost') && !scoreSubmitted.current && state.score > 0) {
-      scoreSubmitted.current = true;
-      const settings = DIFFICULTY_SETTINGS[difficulty];
-      const finalScore = Math.floor(state.score * settings.scoreMultiplier);
-      addToLeaderboard({
-        name: 'Gracz',
-        score: finalScore,
-        map: map.name,
-        difficulty,
-        wave: state.wave,
-        date: new Date().toLocaleDateString('pl-PL'),
-      });
+      setShowNameInput(true);
     }
-  }, [state.phase, state.score, difficulty, map.name, state.wave]);
+  }, [state.phase, state.score]);
+
+  const submitScore = useCallback((name: string) => {
+    if (scoreSubmitted.current) return;
+    scoreSubmitted.current = true;
+    setShowNameInput(false);
+    const settings = DIFFICULTY_SETTINGS[difficulty];
+    const finalScore = Math.floor(state.score * settings.scoreMultiplier);
+    addToLeaderboard({
+      name,
+      score: finalScore,
+      map: map.name,
+      difficulty,
+      wave: state.wave,
+      date: new Date().toLocaleDateString('pl-PL'),
+    });
+  }, [state.score, difficulty, map.name, state.wave]);
 
   const handleCellClick = useCallback((col: number, row: number) => {
     if (selectedTower) {
