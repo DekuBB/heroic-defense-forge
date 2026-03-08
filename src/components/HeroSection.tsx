@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import mapImg from "@/assets/map-volcanic.png";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
       {/* Background image */}
