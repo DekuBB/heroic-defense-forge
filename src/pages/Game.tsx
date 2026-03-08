@@ -7,6 +7,8 @@ import GameHUD from '@/components/game/GameHUD';
 import Minimap from '@/components/game/Minimap';
 import EnemyTooltip from '@/components/game/EnemyTooltip';
 import Leaderboard from '@/components/game/Leaderboard';
+import Tutorial from '@/components/game/Tutorial';
+import NameInput from '@/components/game/NameInput';
 import { MAPS } from '@/game/data';
 import { Difficulty, DIFFICULTY_SETTINGS, addToLeaderboard } from '@/game/difficulty';
 import { motion } from 'framer-motion';
@@ -109,6 +111,7 @@ const GamePlay = ({ mapId, difficulty }: { mapId: string; difficulty: Difficulty
   const [selectedTower, setSelectedTower] = useState<string | null>(null);
   const [selectedPlaced, setSelectedPlaced] = useState<string | null>(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showNameInput, setShowNameInput] = useState(false);
   const scoreSubmitted = useRef(false);
 
   // Track explosion count for audio
@@ -126,22 +129,28 @@ const GamePlay = ({ mapId, difficulty }: { mapId: string; difficulty: Difficulty
     prevExplosionCount.current = state.explosions.length;
   }, [state.explosions.length]);
 
-  // Auto-save score on game end
+  // Show name input on game end
   useEffect(() => {
     if ((state.phase === 'won' || state.phase === 'lost') && !scoreSubmitted.current && state.score > 0) {
-      scoreSubmitted.current = true;
-      const settings = DIFFICULTY_SETTINGS[difficulty];
-      const finalScore = Math.floor(state.score * settings.scoreMultiplier);
-      addToLeaderboard({
-        name: 'Gracz',
-        score: finalScore,
-        map: map.name,
-        difficulty,
-        wave: state.wave,
-        date: new Date().toLocaleDateString('pl-PL'),
-      });
+      setShowNameInput(true);
     }
-  }, [state.phase, state.score, difficulty, map.name, state.wave]);
+  }, [state.phase, state.score]);
+
+  const submitScore = useCallback((name: string) => {
+    if (scoreSubmitted.current) return;
+    scoreSubmitted.current = true;
+    setShowNameInput(false);
+    const settings = DIFFICULTY_SETTINGS[difficulty];
+    const finalScore = Math.floor(state.score * settings.scoreMultiplier);
+    addToLeaderboard({
+      name,
+      score: finalScore,
+      map: map.name,
+      difficulty,
+      wave: state.wave,
+      date: new Date().toLocaleDateString('pl-PL'),
+    });
+  }, [state.score, difficulty, map.name, state.wave]);
 
   const handleCellClick = useCallback((col: number, row: number) => {
     if (selectedTower) {
@@ -176,8 +185,11 @@ const GamePlay = ({ mapId, difficulty }: { mapId: string; difficulty: Difficulty
 
   const handleReset = useCallback(() => {
     scoreSubmitted.current = false;
+    setShowNameInput(false);
     resetGame();
   }, [resetGame]);
+
+  const finalScore = Math.floor(state.score * DIFFICULTY_SETTINGS[difficulty].scoreMultiplier);
 
   return (
     <div className="min-h-screen bg-game-gradient p-3 md:p-4 space-y-3">
@@ -222,6 +234,14 @@ const GamePlay = ({ mapId, difficulty }: { mapId: string; difficulty: Difficulty
         </div>
       </div>
       {showLeaderboard && <Leaderboard onClose={() => setShowLeaderboard(false)} />}
+      {showNameInput && (
+        <NameInput
+          score={finalScore}
+          onSubmit={submitScore}
+          onSkip={() => { submitScore('Anonim'); }}
+        />
+      )}
+      <Tutorial />
     </div>
   );
 };
