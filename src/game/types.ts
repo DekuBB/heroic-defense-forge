@@ -13,7 +13,7 @@ export interface GameMap {
   rows: number;
   grid: CellType[][];
   path: [number, number][]; // ordered path coordinates [col, row]
-  theme: 'volcanic' | 'tundra';
+  theme: 'volcanic' | 'tundra' | 'forest' | 'desert';
 }
 
 export interface TowerDef {

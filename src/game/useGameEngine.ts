@@ -29,12 +29,19 @@ export function useGameEngine(mapId: string) {
     score: 0,
   });
 
+  const [speed, setSpeed] = useState<number>(1);
+  const [paused, setPaused] = useState(false);
+
   const stateRef = useRef(state);
   stateRef.current = state;
   const rafRef = useRef<number>(0);
   const lastTimeRef = useRef<number>(0);
   const runningRef = useRef(false);
   const gameLoopRef = useRef<(time: number) => void>(() => {});
+  const speedRef = useRef(speed);
+  speedRef.current = speed;
+  const pausedRef = useRef(paused);
+  pausedRef.current = paused;
 
   const pathPixels = useCallback((pathIndex: number) => {
     const path = map.path;
@@ -125,8 +132,23 @@ export function useGameEngine(mapId: string) {
     rafRef.current = requestAnimationFrame((t) => gameLoopRef.current(t));
   }, []);
 
+  const togglePause = useCallback(() => {
+    setPaused(p => !p);
+  }, []);
+
+  const setGameSpeed = useCallback((s: number) => {
+    setSpeed(s);
+  }, []);
+
   const gameLoop = useCallback((time: number) => {
-    const dt = Math.min((time - lastTimeRef.current) / 1000, 0.05);
+    if (pausedRef.current) {
+      lastTimeRef.current = time;
+      if (runningRef.current) {
+        rafRef.current = requestAnimationFrame((t) => gameLoopRef.current(t));
+      }
+      return;
+    }
+    const dt = Math.min((time - lastTimeRef.current) / 1000, 0.05) * speedRef.current;
     lastTimeRef.current = time;
 
     setState(prev => {
@@ -370,5 +392,9 @@ export function useGameEngine(mapId: string) {
     startWave,
     resetGame,
     pathPixels,
+    speed,
+    paused,
+    setGameSpeed,
+    togglePause,
   };
 }

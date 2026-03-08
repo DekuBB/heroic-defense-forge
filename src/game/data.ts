@@ -96,7 +96,12 @@ export const ENEMIES: EnemyDef[] = [
   { id: 'troll', name: 'Troll', emoji: '🧌', hp: 350, speed: 0.7, reward: 35, isBoss: false },
   { id: 'skeleton', name: 'Szkielet', emoji: '💀', hp: 80, speed: 2.5, reward: 12, isBoss: false },
   { id: 'dark_knight', name: 'Mroczny Rycerz', emoji: '🗡️', hp: 500, speed: 0.9, reward: 50, isBoss: false },
+  { id: 'spider', name: 'Pająk', emoji: '🕷️', hp: 40, speed: 3.5, reward: 8, isBoss: false },
+  { id: 'demon', name: 'Demon', emoji: '👿', hp: 700, speed: 1.0, reward: 60, isBoss: false },
+  { id: 'golem', name: 'Golem', emoji: '🗿', hp: 1200, speed: 0.4, reward: 80, isBoss: false },
+  { id: 'wraith', name: 'Upiór', emoji: '👻', hp: 200, speed: 3.0, reward: 25, isBoss: false },
   { id: 'necromancer', name: 'Nekromanta', emoji: '☠️', hp: 3000, speed: 0.5, reward: 300, isBoss: true },
+  { id: 'dragon', name: 'Smok', emoji: '🐉', hp: 5000, speed: 0.6, reward: 500, isBoss: true },
 ];
 
 // ===== WAVE DEFINITIONS (12 waves) =====
@@ -192,8 +197,38 @@ const tundraRaw = [
   'XBBBBBBBBBBBBBBBX',
 ];
 
+const forestRaw = [
+  'XBBBBBBBBBBBBBBBX',
+  'XBBBSPPPPPPBBBBEX',
+  'XBBBBBBBBBPBBBBPX',
+  'XBBBBBBBBBPBBBBPX',
+  'XBBPPPPPPPPPBBBPX',
+  'XBBPBBBBBBBBBBPPX',
+  'XBBPBBBBBBBBBBBBX',
+  'XBBPPPPPPPPPPBBBX',
+  'XBBBBBBBBBBBPBBBX',
+  'XBBBBBBBBBBBPBBBX',
+  'XBBBBBBBBBBBBBBBX',
+];
+
+const desertRaw = [
+  'XBBBBBBBBBBBBBBBX',
+  'SPPPPPBBBBBBBBBBX',
+  'XBBBBPBBBBBBBBBBX',
+  'XBBBBPPPPPBBBBBBX',
+  'XBBBBBBBBPBBBBBBX',
+  'XBBBBBBBBPPPPPBBX',
+  'XBBBBBBBBBBBBPBBX',
+  'XBBBBBBPPPPPPPBBX',
+  'XBBBBBBPBBBBBBBBX',
+  'XBBBBBBPPPPPPPPEX',
+  'XBBBBBBBBBBBBBBBX',
+];
+
 const volcanic = parseMap(volcanicRaw);
 const tundra = parseMap(tundraRaw);
+const forest = parseMap(forestRaw);
+const desert = parseMap(desertRaw);
 
 export const MAPS: GameMap[] = [
   {
@@ -213,5 +248,23 @@ export const MAPS: GameMap[] = [
     grid: tundra.grid,
     path: tundra.path,
     theme: 'tundra',
+  },
+  {
+    id: 'forest',
+    name: 'Mroczny Las',
+    cols: 18,
+    rows: 11,
+    grid: forest.grid,
+    path: forest.path,
+    theme: 'forest',
+  },
+  {
+    id: 'desert',
+    name: 'Pustynne Wydmy',
+    cols: 18,
+    rows: 11,
+    grid: desert.grid,
+    path: desert.path,
+    theme: 'desert',
   },
 ];

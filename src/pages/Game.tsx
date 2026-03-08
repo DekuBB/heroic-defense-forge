@@ -33,7 +33,7 @@ const MapSelect = ({ onSelect }: { onSelect: (id: string) => void }) => {
               onClick={() => onSelect(map.id)}
               className="bg-card border border-border rounded-xl p-6 text-left hover:border-primary/50 transition-colors"
             >
-              <div className="text-4xl mb-3">{map.theme === 'volcanic' ? '🌋' : '❄️'}</div>
+              <div className="text-4xl mb-3">{map.theme === 'volcanic' ? '🌋' : map.theme === 'forest' ? '🌲' : map.theme === 'desert' ? '🏜️' : '❄️'}</div>
               <h3 className="font-display text-lg font-bold text-foreground">{map.name}</h3>
               <p className="font-body text-sm text-muted-foreground mt-1">
                 {map.cols}x{map.rows} • 12 fal • Boss na końcu
@@ -55,7 +55,7 @@ const MapSelect = ({ onSelect }: { onSelect: (id: string) => void }) => {
 
 const GamePlay = ({ mapId }: { mapId: string }) => {
   const navigate = useNavigate();
-  const { state, map, placeTower, upgradeTower, sellTower, startWave, resetGame } = useGameEngine(mapId);
+  const { state, map, placeTower, upgradeTower, sellTower, startWave, resetGame, speed, paused, setGameSpeed, togglePause } = useGameEngine(mapId);
   const [selectedTower, setSelectedTower] = useState<string | null>(null);
   const [selectedPlaced, setSelectedPlaced] = useState<string | null>(null);
 
@@ -111,9 +111,13 @@ const GamePlay = ({ mapId }: { mapId: string }) => {
       <GameHUD
         state={state}
         mapName={map.name}
+        speed={speed}
+        paused={paused}
         onStartWave={handleStartWave}
         onReset={resetGame}
         onBack={() => navigate('/game')}
+        onSetSpeed={setGameSpeed}
+        onTogglePause={togglePause}
       />
       <div className="flex flex-col lg:flex-row gap-3">
         <div className="flex-1 overflow-auto">
