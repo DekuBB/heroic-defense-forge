@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { GameState, PlacedTower, ActiveEnemy, Projectile, CELL_SIZE } from './types';
+import { GameState, PlacedTower, ActiveEnemy, Projectile, Explosion, CELL_SIZE } from './types';
 import { TOWERS, ENEMIES, WAVES, MAPS } from './data';
 
 let nextId = 0;
