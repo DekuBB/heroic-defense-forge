@@ -194,12 +194,12 @@ export function useGameEngine(mapId: string) {
         s.enemies = s.enemies.filter(e => !reachedEnd.includes(e.id));
       }
 
-      // Tower firing
+      // Tower firing - create new tower objects to preserve immutability
       const now = s.spawnTimer; // use spawnTimer as continuous time
-      for (const tower of s.towers) {
+      s.towers = s.towers.map(tower => {
         const stats = getTowerStats(tower);
         const interval = 1 / stats.fireRate;
-        if (now - tower.lastFired < interval) continue;
+        if (now - tower.lastFired < interval) return tower;
 
         // Find closest enemy in range
         const towerX = tower.col * CELL_SIZE + CELL_SIZE / 2;
@@ -220,8 +220,6 @@ export function useGameEngine(mapId: string) {
         }
 
         if (closest) {
-          tower.lastFired = now;
-          tower.target = closest.id;
           s.projectiles.push({
             id: uid(),
             fromX: towerX,
@@ -235,8 +233,10 @@ export function useGameEngine(mapId: string) {
             dotDamage: stats.dotDamage,
             targetId: closest.id,
           });
+          return { ...tower, lastFired: now, target: closest.id };
         }
-      }
+        return tower;
+      });
 
       // Move projectiles
       const hitProjectiles: string[] = [];
