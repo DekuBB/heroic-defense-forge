@@ -66,6 +66,7 @@ const GameBoard = ({ map, state, selectedTower, selectedPlaced, onCellClick, onT
                   theme={map.theme}
                   hasTower={!!tower}
                   isSelected={tower?.id === selectedPlaced}
+                  isBuildHighlight={!!selectedTower && cell === 'buildable'}
                   onClick={() => tower ? onTowerClick(tower.id) : onCellClick(c, r)}
                 />
               );
