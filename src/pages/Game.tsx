@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useGameEngine } from '@/game/useGameEngine';
 import GameBoard from '@/components/game/GameBoard';
@@ -6,6 +6,7 @@ import TowerPanel from '@/components/game/TowerPanel';
 import GameHUD from '@/components/game/GameHUD';
 import { MAPS } from '@/game/data';
 import { motion } from 'framer-motion';
+import { playHitSound, playSplashSound, playKillSound, playPlaceSound, playWaveStartSound } from '@/game/audio';
 
 const MapSelect = ({ onSelect }: { onSelect: (id: string) => void }) => {
   const navigate = useNavigate();
