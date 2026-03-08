@@ -7,6 +7,8 @@ import GameHUD from '@/components/game/GameHUD';
 import Minimap from '@/components/game/Minimap';
 import EnemyTooltip from '@/components/game/EnemyTooltip';
 import Leaderboard from '@/components/game/Leaderboard';
+import Tutorial from '@/components/game/Tutorial';
+import NameInput from '@/components/game/NameInput';
 import { MAPS } from '@/game/data';
 import { Difficulty, DIFFICULTY_SETTINGS, addToLeaderboard } from '@/game/difficulty';
 import { motion } from 'framer-motion';

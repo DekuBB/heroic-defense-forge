@@ -167,7 +167,7 @@ const GameBoard = ({ map, state, selectedTower, selectedPlaced, onCellClick, onT
           );
         })}
 
-        {/* Explosions */}
+        {/* Explosions with particles */}
         {state.explosions.map(expl => {
           const progress = 1 - expl.timer / 0.35;
           const scale = 0.5 + progress * 1.5;
@@ -186,21 +186,64 @@ const GameBoard = ({ map, state, selectedTower, selectedPlaced, onCellClick, onT
             fire: 'hsl(15 90% 45% / 0.6)',
             kill: 'hsl(45 100% 60% / 0.8)',
           };
+          // Generate particle offsets from explosion ID
+          const particleCount = expl.type === 'kill' ? 8 : expl.type === 'splash' ? 6 : 4;
+          const particles = Array.from({ length: particleCount }, (_, i) => {
+            const angle = (i / particleCount) * Math.PI * 2 + (expl.id.charCodeAt(1) || 0);
+            const dist = progress * expl.radius * 1.8;
+            return {
+              x: Math.cos(angle) * dist,
+              y: Math.sin(angle) * dist,
+              size: Math.max(1, (1 - progress) * (expl.type === 'kill' ? 5 : 3)),
+            };
+          });
           return (
-            <div
-              key={expl.id}
-              className="absolute z-50 pointer-events-none rounded-full"
-              style={{
-                left: expl.x - expl.radius,
-                top: expl.y - expl.radius,
-                width: expl.radius * 2,
-                height: expl.radius * 2,
-                transform: `scale(${scale})`,
-                opacity,
-                background: `radial-gradient(circle, ${colors[expl.type]} 0%, transparent 70%)`,
-                boxShadow: `0 0 ${expl.radius}px ${glowColors[expl.type]}`,
-              }}
-            />
+            <div key={expl.id} className="absolute z-50 pointer-events-none" style={{ left: expl.x, top: expl.y }}>
+              {/* Main glow */}
+              <div
+                className="absolute rounded-full"
+                style={{
+                  left: -expl.radius,
+                  top: -expl.radius,
+                  width: expl.radius * 2,
+                  height: expl.radius * 2,
+                  transform: `scale(${scale})`,
+                  opacity,
+                  background: `radial-gradient(circle, ${colors[expl.type]} 0%, transparent 70%)`,
+                  boxShadow: `0 0 ${expl.radius}px ${glowColors[expl.type]}`,
+                }}
+              />
+              {/* Particles */}
+              {particles.map((p, i) => (
+                <div
+                  key={i}
+                  className="absolute rounded-full"
+                  style={{
+                    left: p.x - p.size / 2,
+                    top: p.y - p.size / 2,
+                    width: p.size,
+                    height: p.size,
+                    opacity: opacity * 0.9,
+                    backgroundColor: colors[expl.type],
+                    boxShadow: `0 0 ${p.size * 2}px ${colors[expl.type]}`,
+                  }}
+                />
+              ))}
+              {/* Kill sparkle ring */}
+              {expl.type === 'kill' && progress < 0.7 && (
+                <div
+                  className="absolute rounded-full border"
+                  style={{
+                    left: -(progress * expl.radius * 2.5),
+                    top: -(progress * expl.radius * 2.5),
+                    width: progress * expl.radius * 5,
+                    height: progress * expl.radius * 5,
+                    borderColor: `hsl(45 100% 60% / ${(1 - progress / 0.7) * 0.5})`,
+                    opacity: 1 - progress / 0.7,
+                  }}
+                />
+              )}
+            </div>
           );
         })}
       </div>
