@@ -11,6 +11,8 @@ interface GameBoardProps {
   onTowerClick: (towerId: string) => void;
 }
 
+const TOWER_SELECTED_CLASS = 'ring-2 ring-primary/50 bg-primary/10 animate-pulse';
+
 const CellComponent = memo(({ type, col, row, theme, hasTower, isSelected, onClick }: {
   type: string; col: number; row: number; theme: string; hasTower: boolean; isSelected: boolean;
   onClick: () => void;
