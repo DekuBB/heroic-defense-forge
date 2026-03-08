@@ -68,7 +68,7 @@ const GameNav = () => {
               {item.label}
             </a>
           ))}
-          <button className="w-full px-5 py-2 bg-primary text-primary-foreground font-body font-bold text-sm rounded-lg">
+          <button onClick={() => { setOpen(false); navigate('/game'); }} className="w-full px-5 py-2 bg-primary text-primary-foreground font-body font-bold text-sm rounded-lg">
             Graj Teraz
           </button>
         </motion.div>
