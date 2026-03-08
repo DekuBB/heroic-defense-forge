@@ -296,15 +296,19 @@ export function useGameEngine(mapId: string) {
     }
   }, [map.path, pathPixels]);
 
-  // Resume loop when phase becomes combat
+  // Start/stop loop when phase changes
   useEffect(() => {
-    if (state.phase === 'combat' && !runningRef.current) {
+    if (state.phase === 'combat') {
       runningRef.current = true;
       lastTimeRef.current = performance.now();
       rafRef.current = requestAnimationFrame(gameLoop);
     }
     return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = 0;
+      }
+      runningRef.current = false;
     };
   }, [state.phase, gameLoop]);
 
