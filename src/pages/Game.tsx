@@ -216,7 +216,7 @@ const GamePlay = ({ mapId, difficulty }: { mapId: string; difficulty: Difficulty
             onTowerClick={handleTowerClick}
           />
         </div>
-        <div className="w-full lg:w-64 space-y-3">
+        <div className="w-full lg:w-64 space-y-2 sm:space-y-3">
           <TowerPanel
             state={state}
             selectedTower={selectedTower}
