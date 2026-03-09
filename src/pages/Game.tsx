@@ -205,8 +205,8 @@ const GamePlay = ({ mapId, difficulty }: { mapId: string; difficulty: Difficulty
         onTogglePause={togglePause}
         onShowLeaderboard={() => setShowLeaderboard(true)}
       />
-      <div className="flex flex-col lg:flex-row gap-3">
-        <div className="flex-1 overflow-auto">
+      <div className="flex flex-col lg:flex-row gap-2 sm:gap-3">
+        <div className="flex-1 min-w-0 overflow-hidden">
           <GameBoard
             map={map}
             state={state}
