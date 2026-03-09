@@ -1,4 +1,4 @@
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useRef, useEffect, useState } from 'react';
 import { GameState, GameMap, CELL_SIZE, PlacedTower, Explosion } from '@/game/types';
 import { TOWERS, ENEMIES } from '@/game/data';
 
@@ -35,12 +35,27 @@ const CellComponent = memo(({ type, col, row, theme, hasTower, isSelected, isBui
       break;
   }
 
+  const isBuildable = type === 'buildable';
+
   return (
     <div
+      role={isBuildable ? 'button' : undefined}
+      tabIndex={isBuildable ? 0 : -1}
+      aria-label={isBuildable ? `Pole ${col},${row}` : undefined}
+      data-testid={`cell-${col}-${row}`}
+      data-cell-type={type}
       onClick={onClick}
+      onKeyDown={(e) => {
+        if (isBuildable && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault();
+          onClick();
+        }
+      }}
       className={`${bg} border border-border/20 cursor-pointer transition-colors relative ${
         isSelected ? 'ring-2 ring-primary' : ''
-      } ${isBuildHighlight && !hasTower ? TOWER_SELECTED_CLASS : ''} ${type === 'start' ? 'border-l-2 border-l-nature' : ''} ${type === 'end' ? 'border-r-2 border-r-fire' : ''}`}
+      } ${isBuildHighlight && !hasTower ? TOWER_SELECTED_CLASS : ''} ${type === 'start' ? 'border-l-2 border-l-nature' : ''} ${type === 'end' ? 'border-r-2 border-r-fire' : ''} ${
+        isBuildable ? 'focus:ring-2 focus:ring-primary focus:outline-none' : ''
+      }`}
       style={{ width: CELL_SIZE, height: CELL_SIZE }}
     />
   );
@@ -50,12 +65,50 @@ CellComponent.displayName = 'CellComponent';
 const GameBoard = ({ map, state, selectedTower, selectedPlaced, onCellClick, onTowerClick }: GameBoardProps) => {
   const boardWidth = map.cols * CELL_SIZE;
   const boardHeight = map.rows * CELL_SIZE;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+
+  // Auto-scale board to fit container
+  useEffect(() => {
+    const updateScale = () => {
+      if (!containerRef.current) return;
+      const container = containerRef.current;
+      const parentWidth = container.parentElement?.clientWidth || window.innerWidth;
+      const maxWidth = parentWidth - 16; // padding
+      const maxHeight = window.innerHeight - 180; // HUD + panel space
+      const scaleX = maxWidth / boardWidth;
+      const scaleY = maxHeight / boardHeight;
+      const newScale = Math.min(scaleX, scaleY, 1); // never scale up
+      setScale(Math.max(newScale, 0.3)); // minimum 30%
+    };
+
+    updateScale();
+    window.addEventListener('resize', updateScale);
+    return () => window.removeEventListener('resize', updateScale);
+  }, [boardWidth, boardHeight]);
 
   return (
-    <div className="relative overflow-auto rounded-xl border border-border bg-card" style={{ maxWidth: '100%' }}>
-      <div className="relative" style={{ width: boardWidth, height: boardHeight, minWidth: boardWidth }}>
-        {/* Grid cells */}
-        <div className="absolute inset-0 grid" style={{ gridTemplateColumns: `repeat(${map.cols}, ${CELL_SIZE}px)` }}>
+    <div
+      ref={containerRef}
+      className="relative overflow-auto rounded-xl border border-border bg-card"
+      data-testid="game-board"
+      style={{ maxWidth: '100%' }}
+    >
+      <div
+        className="relative origin-top-left"
+        style={{
+          width: boardWidth,
+          height: boardHeight,
+          minWidth: boardWidth,
+          transform: `scale(${scale})`,
+          transformOrigin: 'top left',
+        }}
+      >
+        {/* Grid cells - z-0, fully interactive */}
+        <div
+          className="absolute inset-0 grid"
+          style={{ gridTemplateColumns: `repeat(${map.cols}, ${CELL_SIZE}px)`, zIndex: 0 }}
+        >
           {map.grid.map((row, r) =>
             row.map((cell, c) => {
               const tower = state.towers.find(t => t.col === c && t.row === r);
@@ -76,13 +129,17 @@ const GameBoard = ({ map, state, selectedTower, selectedPlaced, onCellClick, onT
           )}
         </div>
 
-        {/* Towers */}
+        {/* Towers - z-10, interactive */}
         {state.towers.map(tower => {
           const def = TOWERS.find(t => t.id === tower.defId)!;
           const isSelected = tower.id === selectedPlaced;
           return (
             <div
               key={tower.id}
+              role="button"
+              tabIndex={0}
+              aria-label={`${def.name} poziom ${tower.level + 1}`}
+              data-testid={`tower-${tower.id}`}
               className={`absolute flex items-center justify-center cursor-pointer transition-transform ${
                 isSelected ? 'scale-110 z-20' : 'z-10 hover:scale-105'
               }`}
@@ -93,6 +150,12 @@ const GameBoard = ({ map, state, selectedTower, selectedPlaced, onCellClick, onT
                 height: CELL_SIZE,
               }}
               onClick={(e) => { e.stopPropagation(); onTowerClick(tower.id); }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onTowerClick(tower.id);
+                }
+              }}
             >
               <div className="text-2xl drop-shadow-lg">{def.emoji}</div>
               {tower.level > 0 && (
@@ -115,7 +178,7 @@ const GameBoard = ({ map, state, selectedTower, selectedPlaced, onCellClick, onT
           );
         })}
 
-        {/* Enemies */}
+        {/* Enemies - pointer-events-none */}
         {state.enemies.map(enemy => {
           const def = ENEMIES.find(e => e.id === enemy.defId)!;
           const hpPercent = (enemy.hp / enemy.maxHp) * 100;
@@ -133,7 +196,6 @@ const GameBoard = ({ map, state, selectedTower, selectedPlaced, onCellClick, onT
               <div className={`text-2xl text-center ${def.isBoss ? 'text-3xl animate-pulse' : ''}`}>
                 {def.emoji}
               </div>
-              {/* HP bar */}
               <div className="absolute -top-1 left-1 right-1 h-1.5 bg-secondary rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-100 ${
@@ -142,7 +204,6 @@ const GameBoard = ({ map, state, selectedTower, selectedPlaced, onCellClick, onT
                   style={{ width: `${hpPercent}%` }}
                 />
               </div>
-              {/* Slow indicator */}
               {enemy.slowTimer > 0 && (
                 <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[10px]">❄️</div>
               )}
@@ -150,7 +211,7 @@ const GameBoard = ({ map, state, selectedTower, selectedPlaced, onCellClick, onT
           );
         })}
 
-        {/* Projectiles */}
+        {/* Projectiles - pointer-events-none */}
         {state.projectiles.map(proj => {
           const x = proj.fromX + (proj.toX - proj.fromX) * proj.progress;
           const y = proj.fromY + (proj.toY - proj.fromY) * proj.progress;
@@ -167,10 +228,10 @@ const GameBoard = ({ map, state, selectedTower, selectedPlaced, onCellClick, onT
           );
         })}
 
-        {/* Explosions with particles */}
+        {/* Explosions - pointer-events-none */}
         {state.explosions.map(expl => {
           const progress = 1 - expl.timer / 0.35;
-          const scale = 0.5 + progress * 1.5;
+          const sc = 0.5 + progress * 1.5;
           const opacity = 1 - progress;
           const colors: Record<Explosion['type'], string> = {
             hit: 'hsl(45 100% 55%)',
@@ -186,7 +247,6 @@ const GameBoard = ({ map, state, selectedTower, selectedPlaced, onCellClick, onT
             fire: 'hsl(15 90% 45% / 0.6)',
             kill: 'hsl(45 100% 60% / 0.8)',
           };
-          // Generate particle offsets from explosion ID
           const particleCount = expl.type === 'kill' ? 8 : expl.type === 'splash' ? 6 : 4;
           const particles = Array.from({ length: particleCount }, (_, i) => {
             const angle = (i / particleCount) * Math.PI * 2 + (expl.id.charCodeAt(1) || 0);
@@ -199,7 +259,6 @@ const GameBoard = ({ map, state, selectedTower, selectedPlaced, onCellClick, onT
           });
           return (
             <div key={expl.id} className="absolute z-50 pointer-events-none" style={{ left: expl.x, top: expl.y }}>
-              {/* Main glow */}
               <div
                 className="absolute rounded-full"
                 style={{
@@ -207,13 +266,12 @@ const GameBoard = ({ map, state, selectedTower, selectedPlaced, onCellClick, onT
                   top: -expl.radius,
                   width: expl.radius * 2,
                   height: expl.radius * 2,
-                  transform: `scale(${scale})`,
+                  transform: `scale(${sc})`,
                   opacity,
                   background: `radial-gradient(circle, ${colors[expl.type]} 0%, transparent 70%)`,
                   boxShadow: `0 0 ${expl.radius}px ${glowColors[expl.type]}`,
                 }}
               />
-              {/* Particles */}
               {particles.map((p, i) => (
                 <div
                   key={i}
@@ -229,7 +287,6 @@ const GameBoard = ({ map, state, selectedTower, selectedPlaced, onCellClick, onT
                   }}
                 />
               ))}
-              {/* Kill sparkle ring */}
               {expl.type === 'kill' && progress < 0.7 && (
                 <div
                   className="absolute rounded-full border"
@@ -247,6 +304,8 @@ const GameBoard = ({ map, state, selectedTower, selectedPlaced, onCellClick, onT
           );
         })}
       </div>
+      {/* Scaled container needs adjusted height so parent doesn't collapse */}
+      <div style={{ width: boardWidth * scale, height: boardHeight * scale, pointerEvents: 'none' }} className="absolute top-0 left-0" />
     </div>
   );
 };

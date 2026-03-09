@@ -192,7 +192,7 @@ const GamePlay = ({ mapId, difficulty }: { mapId: string; difficulty: Difficulty
   const finalScore = Math.floor(state.score * DIFFICULTY_SETTINGS[difficulty].scoreMultiplier);
 
   return (
-    <div className="min-h-screen bg-game-gradient p-3 md:p-4 space-y-3">
+    <div className="min-h-[100dvh] bg-game-gradient p-2 sm:p-3 md:p-4 space-y-2 sm:space-y-3">
       <GameHUD
         state={state}
         mapName={map.name}
@@ -205,8 +205,8 @@ const GamePlay = ({ mapId, difficulty }: { mapId: string; difficulty: Difficulty
         onTogglePause={togglePause}
         onShowLeaderboard={() => setShowLeaderboard(true)}
       />
-      <div className="flex flex-col lg:flex-row gap-3">
-        <div className="flex-1 overflow-auto">
+      <div className="flex flex-col lg:flex-row gap-2 sm:gap-3">
+        <div className="flex-1 min-w-0 overflow-hidden">
           <GameBoard
             map={map}
             state={state}
@@ -216,7 +216,7 @@ const GamePlay = ({ mapId, difficulty }: { mapId: string; difficulty: Difficulty
             onTowerClick={handleTowerClick}
           />
         </div>
-        <div className="w-full lg:w-64 space-y-3">
+        <div className="w-full lg:w-64 space-y-2 sm:space-y-3">
           <TowerPanel
             state={state}
             selectedTower={selectedTower}

@@ -16,27 +16,29 @@ interface GameHUDProps {
 
 const GameHUD = ({ state, mapName, speed, paused, onStartWave, onReset, onBack, onSetSpeed, onTogglePause, onShowLeaderboard }: GameHUDProps) => {
   return (
-    <div className="flex flex-wrap items-center gap-3 bg-card border border-border rounded-xl p-3">
+    <div className="flex flex-wrap items-center gap-2 sm:gap-3 bg-card border border-border rounded-xl p-2 sm:p-3" data-testid="game-hud">
       <button
         onClick={onBack}
-        className="px-3 py-1.5 bg-secondary text-secondary-foreground font-body font-bold text-xs rounded-lg hover:opacity-80"
+        data-testid="hud-back"
+        className="px-2 sm:px-3 py-1.5 bg-secondary text-secondary-foreground font-body font-bold text-xs rounded-lg hover:opacity-80"
       >
         ← Wróć
       </button>
 
-      <h2 className="font-display text-sm font-bold text-foreground">{mapName}</h2>
+      <h2 className="font-display text-xs sm:text-sm font-bold text-foreground truncate max-w-[100px] sm:max-w-none">{mapName}</h2>
 
-      <div className="flex items-center gap-4 ml-auto font-body text-sm">
+      <div className="flex items-center gap-2 sm:gap-4 ml-auto font-body text-xs sm:text-sm flex-wrap">
         <span className="text-primary font-bold">🪙 {state.gold}</span>
         <span className="text-fire font-bold">❤️ {state.lives}</span>
         <span className="text-foreground">
           Fala: <span className="text-accent font-bold">{state.wave + 1}/{WAVES.length}</span>
         </span>
-        <span className="text-muted-foreground">
+        <span className="text-muted-foreground hidden sm:inline">
           Wynik: <span className="text-legendary font-bold">{state.score}</span>
         </span>
         <button
           onClick={onShowLeaderboard}
+          data-testid="hud-leaderboard"
           className="text-primary hover:text-primary/80 transition-colors"
           title="Ranking"
         >
@@ -49,6 +51,7 @@ const GameHUD = ({ state, mapName, speed, paused, onStartWave, onReset, onBack, 
         <div className="flex items-center gap-1">
           <button
             onClick={onTogglePause}
+            data-testid="hud-pause"
             className={`px-2 py-1 font-body font-bold text-xs rounded-lg transition-colors ${
               paused ? 'bg-fire/20 text-fire' : 'bg-secondary text-secondary-foreground hover:opacity-80'
             }`}
@@ -59,6 +62,7 @@ const GameHUD = ({ state, mapName, speed, paused, onStartWave, onReset, onBack, 
             <button
               key={s}
               onClick={() => onSetSpeed(s)}
+              data-testid={`hud-speed-${s}`}
               className={`px-2 py-1 font-body font-bold text-xs rounded-lg transition-colors ${
                 speed === s && !paused
                   ? 'bg-primary text-primary-foreground'
@@ -74,7 +78,8 @@ const GameHUD = ({ state, mapName, speed, paused, onStartWave, onReset, onBack, 
       {state.phase === 'prep' && state.wave < WAVES.length && (
         <button
           onClick={onStartWave}
-          className="px-4 py-1.5 bg-primary text-primary-foreground font-body font-bold text-sm rounded-lg hover:opacity-90 transition-opacity border-glow-legendary"
+          data-testid="hud-start-wave"
+          className="px-3 sm:px-4 py-1.5 bg-primary text-primary-foreground font-body font-bold text-xs sm:text-sm rounded-lg hover:opacity-90 transition-opacity border-glow-legendary"
         >
           ⚔️ Rozpocznij Falę {state.wave + 1}
         </button>
@@ -82,12 +87,13 @@ const GameHUD = ({ state, mapName, speed, paused, onStartWave, onReset, onBack, 
 
       {(state.phase === 'won' || state.phase === 'lost') && (
         <div className="flex items-center gap-3">
-          <span className={`font-display font-bold text-sm ${state.phase === 'won' ? 'text-legendary text-glow-gold' : 'text-fire'}`}>
+          <span className={`font-display font-bold text-xs sm:text-sm ${state.phase === 'won' ? 'text-legendary text-glow-gold' : 'text-fire'}`}>
             {state.phase === 'won' ? '🏆 ZWYCIĘSTWO!' : '💀 PORAŻKA'}
           </span>
           <button
             onClick={onReset}
-            className="px-4 py-1.5 bg-primary text-primary-foreground font-body font-bold text-sm rounded-lg"
+            data-testid="hud-reset"
+            className="px-3 sm:px-4 py-1.5 bg-primary text-primary-foreground font-body font-bold text-xs sm:text-sm rounded-lg"
           >
             Zagraj ponownie
           </button>
@@ -95,7 +101,7 @@ const GameHUD = ({ state, mapName, speed, paused, onStartWave, onReset, onBack, 
       )}
 
       {state.phase === 'combat' && (
-        <span className="text-fire font-body font-bold text-sm animate-pulse">
+        <span className="text-fire font-body font-bold text-xs sm:text-sm animate-pulse">
           {paused ? '⏸️ Pauza' : '⚔️ Walka!'}
         </span>
       )}
